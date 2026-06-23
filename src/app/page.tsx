@@ -16,6 +16,13 @@ export default function RolesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<Role | null>(null);
   
+  // Toast State
+  const [toastMsg, setToastMsg] = useState("");
+  const showToast = (msg: string) => {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(""), 3000);
+  };
+  
   // Form State
   const [formName, setFormName] = useState("");
   const [formDesc, setFormDesc] = useState("");
@@ -104,12 +111,30 @@ export default function RolesPage() {
       if (res.ok) {
         const created = await res.json();
         setRoles([...roles, created]);
+        showToast("Role created successfully!");
       }
     }
     handleCloseModal();
   };
 
-  if (loading) return <div>Loading...</div>;
+  const handleDeleteRole = async (roleId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!confirm("Are you sure you want to delete this role? It will be removed from all assigned users.")) return;
+    
+    const res = await fetch(`/api/roles/${roleId}`, {
+      method: "DELETE"
+    });
+    if (res.ok) {
+      setRoles(roles.filter(r => r.id !== roleId));
+      showToast("Role deleted successfully!");
+    }
+  };
+
+  if (loading) return (
+    <div className={compStyles.spinnerWrapper}>
+      <div className={compStyles.spinner}></div>
+    </div>
+  );
 
   return (
     <div>
@@ -134,12 +159,22 @@ export default function RolesPage() {
                   <h3 className={compStyles.cardTitle}>{role.name}</h3>
                   {role.isSystem && <span className={`${compStyles.badge} ${compStyles.badgeSystem}`}>System</span>}
                 </div>
-                <button 
-                  className={`${compStyles.button} ${compStyles.buttonSecondary}`}
-                  onClick={() => handleOpenModal(role)}
-                >
-                  {role.isSystem ? 'View' : 'Edit'}
-                </button>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button 
+                    className={`${compStyles.button} ${compStyles.buttonSecondary}`}
+                    onClick={() => handleOpenModal(role)}
+                  >
+                    {role.isSystem ? 'View' : 'Edit'}
+                  </button>
+                  {!role.isSystem && (
+                    <button 
+                      className={`${compStyles.button} ${compStyles.buttonDanger}`}
+                      onClick={(e) => handleDeleteRole(role.id, e)}
+                    >
+                      Delete
+                    </button>
+                  )}
+                </div>
               </div>
               <div className={compStyles.cardBody}>
                 <p className={styles.roleDesc}>{role.description}</p>
@@ -245,6 +280,12 @@ export default function RolesPage() {
               )}
             </div>
           </div>
+        </div>
+      )}
+
+      {toastMsg && (
+        <div className={compStyles.toast}>
+          ✓ {toastMsg}
         </div>
       )}
     </div>

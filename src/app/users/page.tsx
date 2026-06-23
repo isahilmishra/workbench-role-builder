@@ -21,6 +21,13 @@ export default function UsersPage() {
   const [viewingUser, setViewingUser] = useState<User | null>(null);
   const [effectivePerms, setEffectivePerms] = useState<Record<string, string[]>>({});
 
+  // Toast State
+  const [toastMsg, setToastMsg] = useState("");
+  const showToast = (msg: string) => {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(""), 3000);
+  };
+
   useEffect(() => {
     Promise.all([
       fetch("/api/users").then(res => res.json()),
@@ -61,6 +68,7 @@ export default function UsersPage() {
       const updatedUser = await res.json();
       setUsers(users.map(u => u.id === updatedUser.id ? updatedUser : u));
       setIsManageOpen(false);
+      showToast(`Roles updated for ${managingUser.name}`);
     }
   };
 
@@ -90,7 +98,11 @@ export default function UsersPage() {
     setIsPermsOpen(true);
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return (
+    <div className={compStyles.spinnerWrapper}>
+      <div className={compStyles.spinner}></div>
+    </div>
+  );
 
   return (
     <div>
@@ -227,6 +239,12 @@ export default function UsersPage() {
               </table>
             </div>
           </div>
+        </div>
+      )}
+
+      {toastMsg && (
+        <div className={compStyles.toast}>
+          ✓ {toastMsg}
         </div>
       )}
     </div>
