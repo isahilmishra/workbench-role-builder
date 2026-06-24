@@ -1,5 +1,7 @@
 # Workbench: Custom Role & Permission Builder
 
+🚀 **Live Demo:** [https://workbench-role-builder-2v2m0emji-sahil-m-projects1.vercel.app/](https://workbench-role-builder-2v2m0emji-sahil-m-projects1.vercel.app/)
+
 Welcome to the **Workbench Role & Permission Builder**, a full-stack prototype designed to handle custom granular access control for SaaS platforms. This application allows team administrators to define custom roles, map them to a rigid permissions matrix, and assign these roles to users with overlapping resolution.
 
 ---
